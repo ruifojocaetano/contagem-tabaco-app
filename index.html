@@ -54,6 +54,7 @@ h3{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:var(--mut
 .linha input{width:100%;min-height:48px;border-radius:10px;border:2px solid var(--campo-borda);background:var(--campo);color:#000;font:inherit;font-size:1.1rem;text-align:center;padding:0 2px}
 .linha input:focus{outline:3px solid var(--accent)}
 .linha .x{min-height:44px;min-width:44px;border:0;background:transparent;color:var(--warn);font-size:1.2rem}
+.cod{display:inline-block;background:var(--brand);color:var(--brand-ink);border-radius:6px;padding:0 7px;font-size:.9em;font-weight:700;margin-right:4px}
 .vazio{color:var(--muted);text-align:center;padding:26px 0}
 .acoes{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 16px 16px}
 .rodape{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:flex;justify-content:space-between;align-items:center;z-index:6}
@@ -204,7 +205,7 @@ function procurar(txt){
   }
   const palavras = norm(txt).split(/\s+/);
   const r = artigos().filter(a => { const n = norm(a.d + " " + a.s); return palavras.every(p => n.includes(p)); }).slice(0, 25);
-  $("res").innerHTML = r.length ? r.map(a => `<button data-c="${esc(a.c)}">${esc(a.d)}<br><small>${esc(a.s)} · ${eur(a.p)}${estado.linhas[a.c] ? " · contado: " + estado.linhas[a.c].q : ""}</small></button>`).join("")
+  $("res").innerHTML = r.length ? r.map(a => `<button data-c="${esc(a.c)}"><b class="cod">${esc(a.c)}</b> ${esc(a.d)}<br><small>${esc(a.s)} · ${eur(a.p)}${estado.linhas[a.c] ? " · contado: " + estado.linhas[a.c].q : ""}</small></button>`).join("")
     : '<div class="vazio">Nenhum artigo encontrado.</div>';
 }
 $("res").addEventListener("click", e => {
@@ -218,7 +219,7 @@ $("leitura").addEventListener("input", e => { if (!/^\d+$/.test(e.target.value.t
 function escolher(a){
   sel = a; $("sel").hidden = !a; if (!a) return;
   const ja = (estado.linhas[a.c] || {}).q || 0;
-  $("s-nome").textContent = a.d;
+  $("s-nome").innerHTML = `<span class="cod">${String(a.c).startsWith("x") ? "—" : esc(a.c)}</span> ${esc(a.d)}`;
   $("s-meta").innerHTML = `${esc(a.s)} · ${eur(a.p)} · ${a.b ? esc(a.b) : "sem código de barras"}<br>Já contado: <span class="ja">${ja}</span>`;
   $("s-qtd").value = ""; $("leitura").value = "";
   $("sel").scrollIntoView({block:"nearest"}); $("s-qtd").focus();
@@ -245,7 +246,7 @@ function desenhar(){
   const itens = ids.map(c => ({a: todos.find(a => String(a.c) === c), l: estado.linhas[c]})).filter(x => x.a)
     .sort((x, y) => (y.l.t || 0) - (x.l.t || 0));
   $("lista").innerHTML = itens.length ? itens.map(({a, l}) =>
-    `<div class="linha" data-c="${esc(a.c)}"><div class="n">${esc(a.d)}<small>${esc(a.s)} · ${eur(a.p)}</small></div>` +
+    `<div class="linha" data-c="${esc(a.c)}"><div class="n"><b class="cod">${String(a.c).startsWith("x") ? "—" : esc(a.c)}</b> ${esc(a.d)}<small>${esc(a.s)} · ${eur(a.p)}</small></div>` +
     `<input inputmode="numeric" pattern="[0-9]*" value="${l.q}" aria-label="Quantidade de ${esc(a.d)}">` +
     `<button class="x" aria-label="Remover">✕</button></div>`).join("") : '<div class="vazio">Ainda não há nada contado. Lê o primeiro código de barras.</div>';
   $("n-cont").textContent = itens.length ? `(${itens.length})` : "";
