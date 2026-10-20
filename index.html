@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Contagem de tabaco</title>
+<meta name="theme-color" content="#7a3b1e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<style>
+:root{
+  --bg:#f5f0ea; --card:#ffffff; --ink:#221a15; --muted:#6f655d; --line:#dcd2c8;
+  --brand:#7a3b1e; --brand-ink:#ffffff; --accent:#d98e04; --warn:#b3261e; --ok:#1f7a4d; --campo:#ffffff; --campo-borda:#9c9189;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#171310; --card:#221c18; --ink:#efe9e3; --muted:#a79c93; --line:#3a312b;
+    --brand:#c2703f; --brand-ink:#170e08; --accent:#f0a820; --warn:#ff8a80; --ok:#5ed39b; --campo:#ffffff; --campo-borda:#9c9189;
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{font-size:16px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+header{position:sticky;top:0;z-index:5;background:var(--brand);color:var(--brand-ink);padding:10px 16px 12px;padding-top:calc(10px + env(safe-area-inset-top))}
+header h1{font-size:1.05rem;margin:0 0 8px;font-weight:650}
+.controlos{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.controlos select,.controlos input{width:100%;min-height:44px;border-radius:10px;border:0;padding:0 10px;font:inherit;background:rgba(255,255,255,.95);color:#221a15}
+.controlos #func{grid-column:1/-1}
+.leitura{display:flex;gap:8px;padding:12px 16px 4px}
+.leitura input{flex:1;min-width:0;min-height:52px;border-radius:12px;border:2px solid var(--brand);padding:0 12px;font:inherit;font-size:1.1rem;background:var(--campo);color:#000}
+.btn{min-height:48px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-weight:600;padding:0 14px}
+.btn.principal{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.btn.perigo{color:var(--warn)}
+.btn.larga{grid-column:1/-1}
+.aviso{font-size:.82rem;color:var(--muted);padding:2px 16px 6px}
+.res{padding:0 16px}
+.res button{display:block;width:100%;text-align:left;min-height:48px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:8px 12px;margin:6px 0;font:inherit}
+.res small{color:var(--muted)}
+.sel{margin:8px 16px;background:var(--card);border:2px solid var(--brand);border-radius:14px;padding:12px}
+.sel h2{margin:0;font-size:1.1rem;overflow-wrap:anywhere}
+.sel .meta{color:var(--muted);font-size:.85rem;margin:2px 0 10px}
+.sel .ja{font-weight:700;color:var(--ok)}
+.sel .qtd{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sel .qtd input{grid-column:1/-1;min-height:56px;border-radius:12px;border:2px solid var(--campo-borda);background:var(--campo);color:#000;font:inherit;font-size:1.5rem;text-align:center}
+.sel .qtd input:focus{outline:3px solid var(--accent)}
+.sel .qtd .btn{min-height:52px}
+main{padding:6px 16px}
+h3{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:14px 0 2px;font-weight:600}
+.linha{display:grid;grid-template-columns:minmax(0,1fr) 72px 44px;gap:6px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px;margin:6px 0}
+.linha.novo{border-color:var(--brand);box-shadow:inset 3px 0 0 var(--brand)}
+.linha .n{overflow-wrap:anywhere;font-size:.95rem}
+.linha .n small{display:block;color:var(--muted)}
+.linha input{width:100%;min-height:48px;border-radius:10px;border:2px solid var(--campo-borda);background:var(--campo);color:#000;font:inherit;font-size:1.1rem;text-align:center;padding:0 2px}
+.linha input:focus{outline:3px solid var(--accent)}
+.linha .x{min-height:44px;min-width:44px;border:0;background:transparent;color:var(--warn);font-size:1.2rem}
+.vazio{color:var(--muted);text-align:center;padding:26px 0}
+.acoes{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 16px 16px}
+.rodape{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:flex;justify-content:space-between;align-items:center;z-index:6}
+.rodape .num{font-size:1.25rem;font-weight:750}
+.rodape .sub{font-size:.8rem;color:var(--muted);text-align:right}
+dialog{border:0;border-radius:16px;padding:16px;max-width:94vw;width:440px;background:var(--card);color:var(--ink)}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+dialog h2{margin:0 0 10px;font-size:1.1rem}
+dialog label{display:block;font-size:.85rem;color:var(--muted);margin:10px 0 4px}
+dialog input{width:100%;min-height:46px;border-radius:10px;border:1px solid var(--line);padding:0 10px;font:inherit;background:var(--bg);color:var(--ink)}
+dialog .fim{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+video{width:100%;border-radius:12px;background:#000;max-height:60vh}
+.toast{position:fixed;left:16px;right:16px;bottom:calc(92px + env(safe-area-inset-bottom));background:#221a15;color:#fff;border-radius:12px;padding:12px 14px;z-index:9;display:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>Contagem de tabaco</h1>
+  <div class="controlos">
+    <select id="loja" aria-label="Loja">
+      <option value="1">Loja 1 · Raimundo</option>
+      <option value="2">Loja 2 · Mourão</option>
+      <option value="3">Loja 3 · Carlitos</option>
+      <option value="4">Loja 4 · Luanda</option>
+    </select>
+    <input id="data" type="date" aria-label="Data da contagem">
+    <input id="func" placeholder="Funcionária" maxlength="40" autocapitalize="characters" aria-label="Funcionária">
+  </div>
+</header>
+
+<div class="leitura">
+  <input id="leitura" inputmode="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" placeholder="Ler código de barras ou escrever nome" aria-label="Código de barras ou nome">
+  <button class="btn principal" id="b-cam" aria-label="Ler com a câmara" hidden>📷</button>
+</div>
+<div class="aviso" id="aviso"></div>
+<div class="res" id="res"></div>
+
+<section class="sel" id="sel" hidden>
+  <h2 id="s-nome"></h2>
+  <div class="meta" id="s-meta"></div>
+  <div class="qtd">
+    <input id="s-qtd" inputmode="numeric" pattern="[0-9]*" placeholder="Quantidade (vazio = 1)" aria-label="Quantidade de maços">
+    <button class="btn principal" id="s-somar">Somar</button>
+    <button class="btn" id="s-subst">Substituir</button>
+  </div>
+</section>
+
+<main>
+  <h3>Contados <span id="n-cont"></span></h3>
+  <div id="lista"></div>
+</main>
+
+<div class="acoes">
+  <button class="btn" id="b-novo">+ Artigo fora da lista</button>
+  <button class="btn principal" id="b-enviar">Enviar contagem</button>
+  <button class="btn perigo larga" id="b-limpar">Limpar tudo</button>
+</div>
+
+<div class="rodape">
+  <div><div class="num" id="r-total">0 maços</div><div class="sub" style="text-align:left" id="r-valor">0 €</div></div>
+  <div class="sub" id="r-art">0 artigos</div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<dialog id="d-cam">
+  <h2>Apontar ao código de barras</h2>
+  <video id="video" playsinline muted></video>
+  <div class="fim"><button class="btn principal" id="c-fechar">Fechar</button></div>
+</dialog>
+
+<dialog id="d-novo">
+  <h2>Artigo fora da lista</h2>
+  <label for="n-cb">Código de barras</label>
+  <input id="n-cb" inputmode="numeric" pattern="[0-9]*">
+  <label for="n-nome">Nome</label>
+  <input id="n-nome" maxlength="60">
+  <label for="n-qtd">Quantidade</label>
+  <input id="n-qtd" inputmode="numeric" pattern="[0-9]*">
+  <div class="fim"><button class="btn" id="n-cancel">Cancelar</button><button class="btn principal" id="n-ok">Guardar</button></div>
+</dialog>
+
+<script>
+"use strict";
+const LOJAS = {1:"Raimundo", 2:"Mourao", 3:"Carlitos", 4:"Luanda"};
+let catalogo = {};      // loja -> [{c,d,b,s,p}]
+let estado = null;      // {loja, data, func, linhas:{codigo:{q,t}}, extras:[{c,d,b,s,p}]}
+let sel = null;         // artigo selecionado
+let indice = new Map(); // código de barras (sem zeros à esquerda) -> artigo
+
+const $ = id => document.getElementById(id);
+const hoje = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,10); };
+const guardar = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} };
+const ler = (k, def) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : def; } catch(e){ return def; } };
+const chave = (loja, data) => `tab:${loja}:${data}`;
+const num = v => { const n = parseInt(v, 10); return Number.isFinite(n) && n > 0 ? n : 0; };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const norm = s => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const cb = s => String(s || "").replace(/\D/g, "").replace(/^0+/, "");
+const eur = n => n.toLocaleString("pt-PT", {minimumFractionDigits:2, maximumFractionDigits:2}) + " €";
+const dmy = d => d.split("-").reverse().join("-");
+function toast(msg){ const t = $("toast"); t.textContent = msg; t.style.display = "block"; clearTimeout(toast.h); toast.h = setTimeout(() => t.style.display = "none", 3000); }
+function bip(ok){
+  try { navigator.vibrate && navigator.vibrate(ok ? 40 : [80, 60, 80]); } catch(e){}
+  try {
+    const a = bip.a = bip.a || new (window.AudioContext || window.webkitAudioContext)(), o = a.createOscillator(), g = a.createGain();
+    o.frequency.value = ok ? 1000 : 300; g.gain.value = .08; o.connect(g); g.connect(a.destination); o.start(); o.stop(a.currentTime + .09);
+  } catch(e){}
+}
+
+async function carregarCatalogo(){
+  try {
+    const r = await fetch("artigos.json?x=" + Date.now()), j = await r.json();
+    catalogo = j.lojas; guardar("tab:catalogo", j);
+    $("aviso").textContent = "Catálogo de " + j.gerado;
+  } catch(e) {
+    const j = ler("tab:catalogo", null);
+    catalogo = j ? j.lojas : {};
+    $("aviso").textContent = j ? "Sem ligação: catálogo de " + j.gerado + " guardado no telemóvel." : "Sem catálogo: usa «+ Artigo fora da lista».";
+  }
+}
+
+const artigos = () => [...(catalogo[estado.loja] || []), ...estado.extras];
+function reindexar(){
+  indice = new Map();
+  for (const a of artigos()){ const k = cb(a.b); if (k) indice.set(k, a); }
+}
+
+const guardarEstado = () => { guardar(chave(estado.loja, estado.data), estado); guardar("tab:ultimo", {loja:estado.loja}); };
+function abrir(loja, data){
+  estado = ler(chave(loja, data), null) || {loja, data, linhas:{}, extras:[]};
+  estado.extras = [...estado.extras, ...ler("tab:extras:" + loja, []).filter(m => !estado.extras.some(e => e.b && e.b === m.b))];
+  if (!estado.func) estado.func = ler("tab:func", "");
+  $("loja").value = loja; $("data").value = data; $("func").value = estado.func;
+  reindexar(); escolher(null); $("res").innerHTML = ""; desenhar();
+}
+
+// ---- procurar: código de barras (só dígitos) ou nome ----
+function procurar(txt){
+  txt = txt.trim(); if (!txt) return;
+  const k = cb(txt);
+  if (/^\d{6,}$/.test(txt.replace(/\s/g, ""))){
+    const a = indice.get(k);
+    if (a){ bip(true); $("res").innerHTML = ""; return escolher(a); }
+    bip(false); escolher(null);
+    $("n-cb").value = txt.replace(/\D/g, ""); $("n-nome").value = ""; $("n-qtd").value = "";
+    toast("Código " + txt + " não está no catálogo desta loja.");
+    return $("d-novo").showModal();
+  }
+  const palavras = norm(txt).split(/\s+/);
+  const r = artigos().filter(a => { const n = norm(a.d + " " + a.s); return palavras.every(p => n.includes(p)); }).slice(0, 25);
+  $("res").innerHTML = r.length ? r.map(a => `<button data-c="${esc(a.c)}">${esc(a.d)}<br><small>${esc(a.s)} · ${eur(a.p)}${estado.linhas[a.c] ? " · contado: " + estado.linhas[a.c].q : ""}</small></button>`).join("")
+    : '<div class="vazio">Nenhum artigo encontrado.</div>';
+}
+$("res").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  escolher(artigos().find(a => String(a.c) === b.dataset.c)); $("res").innerHTML = ""; $("leitura").value = "";
+});
+$("leitura").addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); procurar(e.target.value); } });
+$("leitura").addEventListener("input", e => { if (!/^\d+$/.test(e.target.value.trim())) procurar(e.target.value); else $("res").innerHTML = ""; });
+
+// ---- artigo selecionado: escrever a quantidade ----
+function escolher(a){
+  sel = a; $("sel").hidden = !a; if (!a) return;
+  const ja = (estado.linhas[a.c] || {}).q || 0;
+  $("s-nome").textContent = a.d;
+  $("s-meta").innerHTML = `${esc(a.s)} · ${eur(a.p)} · ${a.b ? esc(a.b) : "sem código de barras"}<br>Já contado: <span class="ja">${ja}</span>`;
+  $("s-qtd").value = ""; $("leitura").value = "";
+  $("sel").scrollIntoView({block:"nearest"}); $("s-qtd").focus();
+}
+function aplicar(somar){
+  if (!sel) return;
+  const txt = $("s-qtd").value.trim(), q = txt === "" ? 1 : num(txt);
+  if (txt !== "" && !q && !(txt === "0" && !somar)) return toast("Escreve uma quantidade.");
+  if (q > 500 && !confirm(`${q} maços de ${sel.d}. Está certo?`)) return;
+  const l = estado.linhas[sel.c] = estado.linhas[sel.c] || {q:0};
+  l.q = somar ? l.q + q : q; l.t = Date.now(); estado.enviado = false;
+  if (!l.q) delete estado.linhas[sel.c];
+  guardarEstado(); const nome = sel.d, total = l.q; escolher(null); desenhar();
+  toast(`${nome} → ${total} ${total === 1 ? "maço" : "maços"}`);
+  $("leitura").focus();
+}
+$("s-somar").addEventListener("click", () => aplicar(true));
+$("s-subst").addEventListener("click", () => aplicar(false));
+$("s-qtd").addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); aplicar(true); } });
+
+// ---- lista dos contados ----
+function desenhar(){
+  const todos = artigos(), ids = Object.keys(estado.linhas);
+  const itens = ids.map(c => ({a: todos.find(a => String(a.c) === c), l: estado.linhas[c]})).filter(x => x.a)
+    .sort((x, y) => (y.l.t || 0) - (x.l.t || 0));
+  $("lista").innerHTML = itens.length ? itens.map(({a, l}) =>
+    `<div class="linha" data-c="${esc(a.c)}"><div class="n">${esc(a.d)}<small>${esc(a.s)} · ${eur(a.p)}</small></div>` +
+    `<input inputmode="numeric" pattern="[0-9]*" value="${l.q}" aria-label="Quantidade de ${esc(a.d)}">` +
+    `<button class="x" aria-label="Remover">✕</button></div>`).join("") : '<div class="vazio">Ainda não há nada contado. Lê o primeiro código de barras.</div>';
+  $("n-cont").textContent = itens.length ? `(${itens.length})` : "";
+  totais(itens);
+}
+function totais(itens){
+  let q = 0, v = 0;
+  for (const {a, l} of itens){ q += l.q; v += l.q * a.p; }
+  $("r-total").textContent = q.toLocaleString("pt-PT") + (q === 1 ? " maço" : " maços");
+  $("r-valor").textContent = eur(v) + " a PVP";
+  $("r-art").textContent = itens.length + (itens.length === 1 ? " artigo" : " artigos");
+}
+$("lista").addEventListener("change", e => {
+  const inp = e.target.closest("input"); if (!inp) return;
+  const c = inp.closest(".linha").dataset.c, q = num(inp.value);
+  if (q > 500 && !confirm(`${q} maços. Está certo?`)) return desenhar();
+  if (q) estado.linhas[c].q = q; else delete estado.linhas[c];
+  estado.enviado = false; guardarEstado(); desenhar();
+});
+$("lista").addEventListener("focusin", e => { if (e.target.matches("input")) setTimeout(() => e.target.select(), 0); });
+$("lista").addEventListener("click", e => {
+  const b = e.target.closest(".x"); if (!b) return;
+  const l = b.closest(".linha"), c = l.dataset.c, a = artigos().find(x => String(x.c) === c);
+  if (!confirm(`Remover ${a ? a.d : c} da contagem?`)) return;
+  delete estado.linhas[c]; guardarEstado(); desenhar();
+});
+
+// ---- cabeçalho ----
+function mudar(){ abrir(+$("loja").value, $("data").value || hoje()); }
+$("loja").addEventListener("change", mudar);
+$("data").addEventListener("change", mudar);
+$("func").addEventListener("change", e => {
+  estado.func = e.target.value.trim().replace(/\s+/g, " ").toUpperCase(); e.target.value = estado.func;
+  guardar("tab:func", estado.func); guardarEstado();
+});
+
+// ---- artigo fora da lista (ex.: novo no mercado, ainda sem ficha na loja) ----
+$("b-novo").addEventListener("click", () => { $("n-cb").value = ""; $("n-nome").value = ""; $("n-qtd").value = ""; $("d-novo").showModal(); });
+$("n-cancel").addEventListener("click", () => $("d-novo").close());
+$("n-ok").addEventListener("click", () => {
+  const b = $("n-cb").value.replace(/\D/g, ""), nome = $("n-nome").value.trim(), q = num($("n-qtd").value);
+  if (!nome) return toast("Escreve o nome.");
+  if (!q) return toast("Escreve a quantidade.");
+  const a = {c: "x" + (b || Date.now()), d: nome, b, s: "Fora da lista", p: 0};
+  estado.extras.push(a); guardar("tab:extras:" + estado.loja, [...ler("tab:extras:" + estado.loja, []), a]);
+  estado.linhas[a.c] = {q, t: Date.now()}; estado.enviado = false;
+  reindexar(); guardarEstado(); $("d-novo").close(); desenhar(); $("leitura").focus();
+});
+
+// ---- câmara (BarcodeDetector: Chrome/Edge em Android; iPhone usa leitor Bluetooth ou escrita) ----
+let stream = null, ativa = false, ultimo = "", ultimoT = 0;
+async function abrirCamara(){
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: "environment"}, audio: false});
+  } catch(e){ return toast("Não consegui abrir a câmara (permissão?)."); }
+  const v = $("video"); v.srcObject = stream; await v.play().catch(() => {});
+  $("d-cam").showModal(); ativa = true;
+  const det = new BarcodeDetector({formats: ["ean_13", "ean_8", "upc_a", "upc_e", "code_128", "itf"]});
+  (async function ciclo(){
+    while (ativa){
+      try {
+        const r = await det.detect(v);
+        if (r.length && ativa){
+          const val = r[0].rawValue, t = Date.now();
+          if (val !== ultimo || t - ultimoT > 2500){ ultimo = val; ultimoT = t; fecharCamara(); procurar(val); return; }
+        }
+      } catch(e){}
+      await new Promise(ok => setTimeout(ok, 150));
+    }
+  })();
+}
+function fecharCamara(){
+  ativa = false; if (stream) stream.getTracks().forEach(t => t.stop()); stream = null;
+  if ($("d-cam").open) $("d-cam").close();
+}
+$("c-fechar").addEventListener("click", fecharCamara);
+$("d-cam").addEventListener("close", fecharCamara);
+if ("BarcodeDetector" in window && navigator.mediaDevices) { $("b-cam").hidden = false; $("b-cam").addEventListener("click", abrirCamara); }
+
+// ---- enviar: CSV (Loja;Data;Funcionaria;Codigo;CodBarras;Descricao;Subfamilia;PVP;Qtd) ----
+function csv(){
+  const L = ["Loja;Data;Funcionaria;Codigo;CodBarras;Descricao;Subfamilia;PVP;Qtd"], todos = artigos();
+  for (const c of Object.keys(estado.linhas)){
+    const a = todos.find(x => String(x.c) === c); if (!a) continue;
+    L.push([estado.loja, estado.data, estado.func || "", String(a.c).startsWith("x") ? "" : a.c, a.b, a.d.replace(/;/g, ","), a.s, String(a.p).replace(".", ","), estado.linhas[c].q].join(";"));
+  }
+  return "﻿" + L.join("\r\n") + "\r\n";
+}
+$("b-enviar").addEventListener("click", async () => {
+  if (!Object.keys(estado.linhas).length) return toast("Ainda não há nada contado.");
+  if (!estado.func) { $("func").focus(); return toast("Escreve primeiro o nome da funcionária."); }
+  const nome = `tabaco ${LOJAS[estado.loja]} ${dmy(estado.data)}.csv`, f = new File([csv()], nome, {type: "text/csv"});
+  try {
+    if (navigator.canShare && navigator.canShare({files: [f]})){
+      await navigator.share({files: [f], title: "Contagem " + nome}); estado.enviado = true; guardarEstado(); return toast("Enviado.");
+    }
+  } catch(e){ if (e && e.name === "AbortError") return; }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(f); a.download = nome; a.click();
+  estado.enviado = true; guardarEstado(); toast("Ficheiro guardado.");
+});
+$("b-limpar").addEventListener("click", () => {
+  if (!confirm("Apagar tudo o que está contado nesta contagem?")) return;
+  estado.linhas = {}; guardarEstado(); desenhar(); escolher(null);
+});
+
+(async function(){
+  await carregarCatalogo();
+  abrir(ler("tab:ultimo", {loja: 3}).loja || 3, hoje());
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch(e){}
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+})();
+</script>
+</body>
+</html>
