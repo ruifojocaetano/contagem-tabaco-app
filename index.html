@@ -296,15 +296,43 @@ $("n-ok").addEventListener("click", () => {
   reindexar(); guardarEstado(); $("d-novo").close(); desenhar(); $("leitura").focus();
 });
 
-// ---- câmara (BarcodeDetector: Chrome/Edge em Android; iPhone usa leitor Bluetooth ou escrita) ----
+// ---- câmara (BarcodeDetector no Android; no iPhone, ZXing local descodifica as imagens do vídeo) ----
 let stream = null, ativa = false, ultimo = "", ultimoT = 0;
+function carregarZXing(){
+  if (window.ZXing) return Promise.resolve();
+  return new Promise((ok, falha) => {
+    const s = document.createElement("script"); s.src = "zxing.min.js"; s.onload = ok; s.onerror = falha;
+    document.head.appendChild(s);
+  });
+}
+function detetorZXing(){
+  const Z = window.ZXing, hints = new Map();
+  hints.set(Z.DecodeHintType.POSSIBLE_FORMATS, [Z.BarcodeFormat.EAN_13, Z.BarcodeFormat.EAN_8, Z.BarcodeFormat.UPC_A, Z.BarcodeFormat.UPC_E, Z.BarcodeFormat.CODE_128, Z.BarcodeFormat.ITF]);
+  hints.set(Z.DecodeHintType.TRY_HARDER, true);
+  const leitor = new Z.MultiFormatReader(); leitor.setHints(hints);
+  const cv = document.createElement("canvas"), cx = cv.getContext("2d", {willReadFrequently: true});
+  return {detect: async v => {
+    if (!v.videoWidth) return [];
+    const esc = Math.min(1, 1280 / v.videoWidth);
+    cv.width = Math.round(v.videoWidth * esc); cv.height = Math.round(v.videoHeight * esc);
+    cx.drawImage(v, 0, 0, cv.width, cv.height);
+    try {
+      const bm = new Z.BinaryBitmap(new Z.HybridBinarizer(new Z.HTMLCanvasElementLuminanceSource(cv)));
+      return [{rawValue: leitor.decode(bm).getText()}];
+    } catch(e){ return []; }
+  }};
+}
 async function abrirCamara(){
+  let det;
+  try {
+    if ("BarcodeDetector" in window) det = new BarcodeDetector({formats: ["ean_13", "ean_8", "upc_a", "upc_e", "code_128", "itf"]});
+    else { await carregarZXing(); det = detetorZXing(); }
+  } catch(e){ return toast("Não consegui carregar o leitor da câmara."); }
   try {
     stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: "environment"}, audio: false});
   } catch(e){ return toast("Não consegui abrir a câmara (permissão?)."); }
   const v = $("video"); v.srcObject = stream; await v.play().catch(() => {});
   $("d-cam").showModal(); ativa = true;
-  const det = new BarcodeDetector({formats: ["ean_13", "ean_8", "upc_a", "upc_e", "code_128", "itf"]});
   (async function ciclo(){
     while (ativa){
       try {
@@ -324,7 +352,7 @@ function fecharCamara(){
 }
 $("c-fechar").addEventListener("click", fecharCamara);
 $("d-cam").addEventListener("close", fecharCamara);
-if ("BarcodeDetector" in window && navigator.mediaDevices) { $("b-cam").hidden = false; $("b-cam").addEventListener("click", abrirCamara); }
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) { $("b-cam").hidden = false; $("b-cam").addEventListener("click", abrirCamara); }
 
 // ---- enviar: CSV (Loja;Data;Funcionaria;Codigo;CodBarras;Descricao;Subfamilia;PVP;Qtd) ----
 function csv(){
