@@ -21,14 +21,13 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{font-size:16px}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+  padding-bottom:calc(var(--dock-h) + 100px + env(safe-area-inset-bottom))}
+:root{--dock-h:clamp(84px,20vh,170px)}
 header{position:sticky;top:0;z-index:5;background:var(--brand);color:var(--brand-ink);padding:10px 16px 12px;padding-top:calc(10px + env(safe-area-inset-top))}
 header h1{font-size:1.05rem;margin:0 0 8px;font-weight:650}
 .controlos{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .controlos select,.controlos input{width:100%;min-height:44px;border-radius:10px;border:0;padding:0 10px;font:inherit;background:rgba(255,255,255,.95);color:#221a15}
-.controlos #func{grid-column:1/-1}
-.leitura{display:flex;gap:8px;padding:12px 16px 4px}
-.leitura input{flex:1;min-width:0;min-height:52px;border-radius:12px;border:2px solid var(--brand);padding:0 12px;font:inherit;font-size:1.1rem;background:var(--campo);color:#000}
+.controlos #leitura{min-height:48px;border:2px solid var(--accent);background:var(--campo);color:#000;font-size:1.1rem;min-width:0}
 .btn{min-height:48px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-weight:600;padding:0 14px}
 .btn.principal{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
 .btn.perigo{color:var(--warn)}
@@ -45,6 +44,12 @@ header h1{font-size:1.05rem;margin:0 0 8px;font-weight:650}
 .sel .qtd input{grid-column:1/-1;min-height:56px;border-radius:12px;border:2px solid var(--campo-borda);background:var(--campo);color:#000;font:inherit;font-size:1.5rem;text-align:center}
 .sel .qtd input:focus{outline:3px solid var(--accent)}
 .sel .qtd .btn{min-height:52px}
+.sel .vol{display:grid;grid-template-columns:1fr auto 1fr 1.3fr;gap:8px;align-items:center;margin-top:8px}
+.sel .vol input{width:100%;min-height:52px;border-radius:12px;border:2px solid var(--campo-borda);background:var(--campo);color:#000;font:inherit;font-size:1.2rem;text-align:center;padding:0 2px}
+.sel .vol input:focus{outline:3px solid var(--accent)}
+.sel .vol .btn{min-height:52px;padding:0 6px}
+.sel.repetido{border-color:var(--warn)}
+.sel .repete{display:block;margin-top:4px;color:var(--warn);font-weight:700}
 main{padding:6px 16px}
 h3{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:14px 0 2px;font-weight:600}
 .linha{display:grid;grid-template-columns:minmax(0,1fr) 72px 44px;gap:6px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px;margin:6px 0}
@@ -57,7 +62,14 @@ h3{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:var(--mut
 .cod{display:inline-block;background:var(--brand);color:var(--brand-ink);border-radius:6px;padding:0 7px;font-size:.9em;font-weight:700;margin-right:4px}
 .vazio{color:var(--muted);text-align:center;padding:26px 0}
 .acoes{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 16px 16px}
-.rodape{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:flex;justify-content:space-between;align-items:center;z-index:6}
+.rodape{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;z-index:6}
+.dock{order:-1;width:100%;display:flex;gap:8px;margin-bottom:10px}
+.dock[hidden]{display:none}
+.dock #b-cam{flex:1;height:var(--dock-h);font-size:1.6rem;border-radius:16px}
+.dock #b-voz{width:25%;height:var(--dock-h);border-radius:16px;font-size:2rem;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
+.dock #b-voz small{font-size:.75rem;font-weight:600}
+.dock #b-voz[aria-pressed="true"]{background:var(--ok);color:#fff;border-color:var(--ok)}
+.dock #b-voz small{font-size:.9rem;font-weight:700}
 .rodape .num{font-size:1.25rem;font-weight:750}
 .rodape .sub{font-size:.8rem;color:var(--muted);text-align:right}
 dialog{border:0;border-radius:16px;padding:16px;max-width:94vw;width:440px;background:var(--card);color:var(--ink)}
@@ -67,7 +79,7 @@ dialog label{display:block;font-size:.85rem;color:var(--muted);margin:10px 0 4px
 dialog input{width:100%;min-height:46px;border-radius:10px;border:1px solid var(--line);padding:0 10px;font:inherit;background:var(--bg);color:var(--ink)}
 dialog .fim{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
 video{width:100%;border-radius:12px;background:#000;max-height:60vh}
-.toast{position:fixed;left:16px;right:16px;bottom:calc(92px + env(safe-area-inset-bottom));background:#221a15;color:#fff;border-radius:12px;padding:12px 14px;z-index:9;display:none}
+.toast{position:fixed;left:16px;right:16px;bottom:calc(var(--dock-h) + 100px + env(safe-area-inset-bottom));background:#221a15;color:#fff;border-radius:12px;padding:12px 14px;z-index:9;display:none}
 </style>
 </head>
 <body>
@@ -82,13 +94,9 @@ video{width:100%;border-radius:12px;background:#000;max-height:60vh}
     </select>
     <input id="data" type="date" aria-label="Data da contagem">
     <input id="func" placeholder="Funcionária" maxlength="40" autocapitalize="characters" aria-label="Funcionária">
+    <input id="leitura" inputmode="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" placeholder="Código ou nome" aria-label="Código de barras, código do produto ou nome">
   </div>
 </header>
-
-<div class="leitura">
-  <input id="leitura" inputmode="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" placeholder="Ler código de barras ou escrever nome" aria-label="Código de barras ou nome">
-  <button class="btn principal" id="b-cam" aria-label="Ler com a câmara" hidden>📷</button>
-</div>
 <div class="aviso" id="aviso"></div>
 <div class="res" id="res"></div>
 
@@ -100,6 +108,12 @@ video{width:100%;border-radius:12px;background:#000;max-height:60vh}
     <button class="btn principal" id="s-somar">Somar</button>
     <button class="btn" id="s-subst">Substituir</button>
   </div>
+  <div class="vol">
+    <input id="s-vol" inputmode="numeric" pattern="[0-9]*" placeholder="Volumes" aria-label="Volumes completos">
+    <span>×</span>
+    <input id="s-mpv" inputmode="numeric" pattern="[0-9]*" placeholder="Maços" aria-label="Maços por volume">
+    <button class="btn" id="s-volsomar">+ Volumes</button>
+  </div>
 </section>
 
 <main>
@@ -110,10 +124,15 @@ video{width:100%;border-radius:12px;background:#000;max-height:60vh}
 <div class="acoes">
   <button class="btn" id="b-novo">+ Artigo fora da lista</button>
   <button class="btn principal" id="b-enviar">Enviar contagem</button>
-  <button class="btn perigo larga" id="b-limpar">Limpar tudo</button>
+  <button class="btn" id="b-desfazer" disabled>↩ Desfazer última</button>
+  <button class="btn perigo" id="b-limpar">Limpar tudo</button>
 </div>
 
 <div class="rodape">
+  <div class="dock" id="dock" hidden>
+    <button class="btn principal" id="b-cam" aria-label="Ler com a câmara">📷 Picar</button>
+    <button class="btn" id="b-voz" aria-label="Comando de voz" aria-pressed="false" hidden>🎤<small>Voz</small></button>
+  </div>
   <div><div class="num" id="r-total">0 maços</div><div class="sub" style="text-align:left" id="r-valor">0 €</div></div>
   <div class="sub" id="r-art">0 artigos</div>
 </div>
@@ -176,6 +195,28 @@ async function carregarCatalogo(){
   }
 }
 
+// lista de funcionárias (funcionarias.json, opcional): troca o campo de texto por uma lista de escolha
+async function carregarFuncionarias(){
+  let nomes;
+  try { const r = await fetch("funcionarias.json?x=" + Date.now()); if (!r.ok) throw 0; nomes = await r.json(); guardar("tab:funcionarias", nomes); }
+  catch(e){ nomes = ler("tab:funcionarias", null); }
+  if (!Array.isArray(nomes) || !nomes.length) return;
+  const sel = document.createElement("select"); sel.id = "func"; sel.setAttribute("aria-label", "Funcionária");
+  const op = (v, t) => { const o = document.createElement("option"); o.value = v; o.textContent = t || v; return o; };
+  const montar = atual => {
+    sel.replaceChildren(op("", "Funcionária…"), ...nomes.map(n => op(n)));
+    if (atual && !nomes.includes(atual)) sel.appendChild(op(atual));
+    sel.appendChild(op("\u0000", "Outra…")); sel.value = atual || "";
+  };
+  montar(estado.func);
+  $("func").replaceWith(sel);
+  sel.addEventListener("change", () => {
+    let v = sel.value;
+    if (v === "\u0000") { v = (prompt("Nome da funcionária:") || "").trim().replace(/\s+/g, " ").toUpperCase().slice(0, 40); montar(v); }
+    estado.func = v; guardar("tab:func", v); guardarEstado();
+  });
+}
+
 const artigos = () => [...(catalogo[estado.loja] || []), ...estado.extras];
 function reindexar(){
   indice = new Map();
@@ -187,24 +228,29 @@ function abrir(loja, data){
   estado = ler(chave(loja, data), null) || {loja, data, linhas:{}, extras:[]};
   estado.extras = [...estado.extras, ...ler("tab:extras:" + loja, []).filter(m => !estado.extras.some(e => e.b && e.b === m.b))];
   if (!estado.func) estado.func = ler("tab:func", "");
-  $("loja").value = loja; $("data").value = data; $("func").value = estado.func;
+  const f = $("func");
+  if (f.tagName === "SELECT" && estado.func && ![...f.options].some(o => o.value === estado.func)) f.insertBefore(new Option(estado.func, estado.func), f.lastElementChild);
+  $("loja").value = loja; $("data").value = data; f.value = estado.func;
   reindexar(); escolher(null); $("res").innerHTML = ""; desenhar();
 }
 
-// ---- procurar: código de barras (só dígitos) ou nome ----
-function procurar(txt){
+// ---- procurar: só dígitos = código de barras (6+) ou código do produto (exato); senão, nome/código na lista ----
+// vivo: a escrever (só mostra a lista, não escolhe nada)
+function procurar(txt, vivo){
   txt = txt.trim(); if (!txt) return;
   const k = cb(txt);
-  if (/^\d{6,}$/.test(txt.replace(/\s/g, ""))){
-    const a = indice.get(k);
+  if (/^\d+$/.test(txt.replace(/\s/g, "")) && !vivo){
+    const a = (k.length >= 6 && indice.get(k)) || artigos().find(x => String(x.c) === k);
     if (a){ bip(true); $("res").innerHTML = ""; return escolher(a); }
-    bip(false); escolher(null);
-    $("n-cb").value = txt.replace(/\D/g, ""); $("n-nome").value = ""; $("n-qtd").value = "";
-    toast("Código " + txt + " não está no catálogo desta loja.");
-    return $("d-novo").showModal();
+    if (k.length >= 6){
+      bip(false); escolher(null);
+      $("n-cb").value = txt.replace(/\D/g, ""); $("n-nome").value = ""; $("n-qtd").value = "";
+      toast("Código " + txt + " não está no catálogo desta loja.");
+      return $("d-novo").showModal();
+    }
   }
   const palavras = norm(txt).split(/\s+/);
-  const r = artigos().filter(a => { const n = norm(a.d + " " + a.s); return palavras.every(p => n.includes(p)); }).slice(0, 25);
+  const r = artigos().filter(a => { const n = norm(a.c + " " + a.d + " " + a.s); return palavras.every(p => n.includes(p)); }).slice(0, 25);
   $("res").innerHTML = r.length ? r.map(a => `<button data-c="${esc(a.c)}"><b class="cod">${esc(a.c)}</b> ${esc(a.d)}<br><small>${esc(a.s)} · ${eur(a.p)}${estado.linhas[a.c] ? " · contado: " + estado.linhas[a.c].q : ""}</small></button>`).join("")
     : '<div class="vazio">Nenhum artigo encontrado.</div>';
 }
@@ -213,23 +259,47 @@ $("res").addEventListener("click", e => {
   escolher(artigos().find(a => String(a.c) === b.dataset.c)); $("res").innerHTML = ""; $("leitura").value = "";
 });
 $("leitura").addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); procurar(e.target.value); } });
-$("leitura").addEventListener("input", e => { if (!/^\d+$/.test(e.target.value.trim())) procurar(e.target.value); else $("res").innerHTML = ""; });
+$("leitura").addEventListener("input", e => {
+  const v = e.target.value.trim();
+  if (/^\d{6,}$/.test(v) || !v) $("res").innerHTML = ""; else procurar(v, true);
+});
 
 // ---- artigo selecionado: escrever a quantidade ----
 function escolher(a){
   sel = a; $("sel").hidden = !a; if (!a) return;
   const ja = (estado.linhas[a.c] || {}).q || 0;
   $("s-nome").innerHTML = `<span class="cod">${String(a.c).startsWith("x") ? "—" : esc(a.c)}</span> ${esc(a.d)}`;
-  $("s-meta").innerHTML = `${esc(a.s)} · ${eur(a.p)} · ${a.b ? esc(a.b) : "sem código de barras"}<br>Já contado: <span class="ja">${ja}</span>`;
+  $("s-meta").innerHTML = `${esc(a.s)} · ${eur(a.p)} · ${a.b ? esc(a.b) : "sem código de barras"}<br>Já contado: <span class="ja">${ja}</span>` +
+    (ja ? `<b class="repete">⚠ Este artigo já foi picado. Se continuar, soma.</b>` : "");
+  $("sel").classList.toggle("repetido", ja > 0);
+  if (ja) { bip(false); toast(`Já picado: ${a.d} (${ja})`); }
   $("s-qtd").value = ""; $("leitura").value = "";
+  $("s-vol").value = ""; $("s-mpv").value = ler(`tab:mpv:${estado.loja}:${a.c}`, 10);
   $("sel").scrollIntoView({block:"nearest"}); $("s-qtd").focus();
 }
-function aplicar(somar){
+function registar(c, antes){ (estado.hist = estado.hist || []).push({c, antes}); if (estado.hist.length > 100) estado.hist.shift(); }
+function desfazer(){
+  const h = estado.hist && estado.hist.pop();
+  if (!h) return toast("Nada para desfazer.");
+  if (h.antes) estado.linhas[h.c] = {...(estado.linhas[h.c] || {}), q: h.antes, t: Date.now()}; else delete estado.linhas[h.c];
+  estado.enviado = false; guardarEstado(); escolher(null); desenhar();
+  const a = artigos().find(x => String(x.c) === String(h.c));
+  toast(`Desfeito: ${a ? a.d : h.c} → ${h.antes}`);
+}
+function aplicarVolumes(n){
   if (!sel) return;
-  const txt = $("s-qtd").value.trim(), q = txt === "" ? 1 : num(txt);
-  if (txt !== "" && !q && !(txt === "0" && !somar)) return toast("Escreve uma quantidade.");
+  n = n == null ? num($("s-vol").value) : n; const m = num($("s-mpv").value);
+  if (!n || !m) return toast("Escreve os volumes e os maços por volume.");
+  guardar(`tab:mpv:${estado.loja}:${sel.c}`, m);
+  aplicar(true, n * m);
+}
+function aplicar(somar, forcado){
+  if (!sel) return;
+  const txt = $("s-qtd").value.trim(), q = forcado != null ? forcado : (txt === "" ? 1 : num(txt));
+  if (forcado == null && txt !== "" && !q && !(txt === "0" && !somar)) return toast("Escreve uma quantidade.");
   if (q > 500 && !confirm(`${q} maços de ${sel.d}. Está certo?`)) return;
   const l = estado.linhas[sel.c] = estado.linhas[sel.c] || {q:0};
+  registar(sel.c, l.q);
   l.q = somar ? l.q + q : q; l.t = Date.now(); estado.enviado = false;
   if (!l.q) delete estado.linhas[sel.c];
   guardarEstado(); const nome = sel.d, total = l.q; escolher(null); desenhar();
@@ -238,6 +308,9 @@ function aplicar(somar){
 }
 $("s-somar").addEventListener("click", () => aplicar(true));
 $("s-subst").addEventListener("click", () => aplicar(false));
+$("s-volsomar").addEventListener("click", () => aplicarVolumes());
+$("s-vol").addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); aplicarVolumes(); } });
+$("b-desfazer").addEventListener("click", desfazer);
 $("s-qtd").addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); aplicar(true); } });
 
 // ---- lista dos contados ----
@@ -250,6 +323,7 @@ function desenhar(){
     `<input inputmode="numeric" pattern="[0-9]*" value="${l.q}" aria-label="Quantidade de ${esc(a.d)}">` +
     `<button class="x" aria-label="Remover">✕</button></div>`).join("") : '<div class="vazio">Ainda não há nada contado. Lê o primeiro código de barras.</div>';
   $("n-cont").textContent = itens.length ? `(${itens.length})` : "";
+  $("b-desfazer").disabled = !(estado.hist && estado.hist.length);
   totais(itens);
 }
 function totais(itens){
@@ -263,6 +337,7 @@ $("lista").addEventListener("change", e => {
   const inp = e.target.closest("input"); if (!inp) return;
   const c = inp.closest(".linha").dataset.c, q = num(inp.value);
   if (q > 500 && !confirm(`${q} maços. Está certo?`)) return desenhar();
+  registar(c, estado.linhas[c].q);
   if (q) estado.linhas[c].q = q; else delete estado.linhas[c];
   estado.enviado = false; guardarEstado(); desenhar();
 });
@@ -271,7 +346,7 @@ $("lista").addEventListener("click", e => {
   const b = e.target.closest(".x"); if (!b) return;
   const l = b.closest(".linha"), c = l.dataset.c, a = artigos().find(x => String(x.c) === c);
   if (!confirm(`Remover ${a ? a.d : c} da contagem?`)) return;
-  delete estado.linhas[c]; guardarEstado(); desenhar();
+  registar(c, estado.linhas[c].q); delete estado.linhas[c]; guardarEstado(); desenhar();
 });
 
 // ---- cabeçalho ----
@@ -352,21 +427,66 @@ function fecharCamara(){
 }
 $("c-fechar").addEventListener("click", fecharCamara);
 $("d-cam").addEventListener("close", fecharCamara);
-if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) { $("b-cam").hidden = false; $("b-cam").addEventListener("click", abrirCamara); }
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) { $("dock").hidden = false; $("b-cam").addEventListener("click", abrirCamara); }
 
-// ---- enviar: CSV (Loja;Data;Funcionaria;Codigo;CodBarras;Descricao;Subfamilia;PVP;Qtd) ----
+// ---- voz: dizer «picar» abre a câmara (reconhecimento de voz do navegador, precisa de internet) ----
+const RecVoz = window.SpeechRecognition || window.webkitSpeechRecognition;
+let voz = null, vozLigada = false, vozT = 0;
+const PALAVRAS = {zero:0,um:1,uma:1,dois:2,duas:2,tres:3,quatro:4,cinco:5,seis:6,sete:7,oito:8,nove:9,dez:10,onze:11,doze:12,treze:13,catorze:14,quatorze:14,quinze:15,
+  dezasseis:16,dezesseis:16,dezassete:17,dezessete:17,dezoito:18,dezanove:19,dezenove:19,vinte:20,trinta:30,quarenta:40,cinquenta:50,sessenta:60,setenta:70,oitenta:80,noventa:90,
+  cem:100,cento:100,duzentos:200,trezentos:300,quatrocentos:400,quinhentos:500};
+function numeroFalado(t){
+  const d = t.match(/\d+/); if (d) return +d[0];
+  const v = norm(t).split(/[\s,.-]+/).filter(p => p in PALAVRAS).map(p => PALAVRAS[p]);
+  return v.length ? v.reduce((s, n) => s + n, 0) : 0;
+}
+function mostrarVoz(){
+  const b = $("b-voz"); b.setAttribute("aria-pressed", vozLigada);
+  b.innerHTML = `🎤<small>Voz ${vozLigada ? "ON" : "OFF"}</small>`;
+}
+function pararVoz(){ vozLigada = false; if (voz) { try { voz.abort(); } catch(e){} } mostrarVoz(); }
+function ligarVoz(){
+  voz = new RecVoz(); voz.lang = "pt-PT"; voz.continuous = true; voz.interimResults = true;
+  voz.onresult = e => {
+    for (let i = e.resultIndex; i < e.results.length; i++){
+      const r = e.results[i], t = r[0].transcript;
+      if (/\b(picar|pica|picá|picado|ler)\b/i.test(t) && !ativa && Date.now() - vozT > 3000){
+        vozT = Date.now(); try { voz.abort(); } catch(x){} abrirCamara(); return;
+      }
+      if (r.isFinal && !ativa && /\b(anular|anula|desfazer|desfaz)\b/i.test(t)){ desfazer(); return; }
+      if (r.isFinal && sel && !ativa){
+        const q = numeroFalado(t);
+        if (q){
+          toast(`Ouvi «${t.trim()}»`);
+          if (/volume|cart[aã]o|cart[oõ]es|caixa/i.test(t)) aplicarVolumes(q); else { $("s-qtd").value = q; aplicar(true); }
+          return;
+        }
+      }
+    }
+  };
+  voz.onend = () => { if (vozLigada) setTimeout(() => { if (vozLigada) try { voz.start(); } catch(e){} }, 300); };
+  voz.onerror = e => { if (e.error === "not-allowed" || e.error === "service-not-allowed"){ pararVoz(); toast("Sem permissão para o microfone."); } };
+  vozLigada = true; mostrarVoz(); voz.start();
+}
+if (RecVoz) {
+  $("b-voz").hidden = false;
+  $("b-voz").addEventListener("click", () => { if (vozLigada) { pararVoz(); toast("Voz OFF: microfone desligado."); } else { ligarVoz(); toast("Voz ON: diga «picar» e depois a quantidade."); } });
+  mostrarVoz();
+}
+
+// ---- enviar: CSV no modelo de importação do Inventário do backoffice (codbarras;codigo;qtd;pcm; ';', sem BOM) ----
 function csv(){
-  const L = ["Loja;Data;Funcionaria;Codigo;CodBarras;Descricao;Subfamilia;PVP;Qtd"], todos = artigos();
+  const L = ["codbarras;codigo;qtd;pcm"], todos = artigos();
   for (const c of Object.keys(estado.linhas)){
     const a = todos.find(x => String(x.c) === c); if (!a) continue;
-    L.push([estado.loja, estado.data, estado.func || "", String(a.c).startsWith("x") ? "" : a.c, a.b, a.d.replace(/;/g, ","), a.s, String(a.p).replace(".", ","), estado.linhas[c].q].join(";"));
+    // pcm = PVP do artigo (preço final de venda), para o inventário ficar valorizado a PVP; fora da lista (PVP 0) fica vazio
+    L.push([a.b || "", String(a.c).startsWith("x") ? "" : a.c, estado.linhas[c].q, a.p ? a.p.toFixed(2).replace(".", ",") : ""].join(";"));
   }
-  return "﻿" + L.join("\r\n") + "\r\n";
+  return L.join("\r\n") + "\r\n";
 }
 $("b-enviar").addEventListener("click", async () => {
   if (!Object.keys(estado.linhas).length) return toast("Ainda não há nada contado.");
-  if (!estado.func) { $("func").focus(); return toast("Escreve primeiro o nome da funcionária."); }
-  const nome = `tabaco ${LOJAS[estado.loja]} ${dmy(estado.data)}.csv`, f = new File([csv()], nome, {type: "text/csv"});
+  const nome = `produtos_inventario ${LOJAS[estado.loja]} ${dmy(estado.data)}.csv`, f = new File([csv()], nome, {type: "text/csv"});
   try {
     if (navigator.canShare && navigator.canShare({files: [f]})){
       await navigator.share({files: [f], title: "Contagem " + nome}); estado.enviado = true; guardarEstado(); return toast("Enviado.");
@@ -377,12 +497,13 @@ $("b-enviar").addEventListener("click", async () => {
 });
 $("b-limpar").addEventListener("click", () => {
   if (!confirm("Apagar tudo o que está contado nesta contagem?")) return;
-  estado.linhas = {}; guardarEstado(); desenhar(); escolher(null);
+  estado.linhas = {}; estado.hist = []; guardarEstado(); desenhar(); escolher(null);
 });
 
 (async function(){
   await carregarCatalogo();
   abrir(ler("tab:ultimo", {loja: 3}).loja || 3, hoje());
+  await carregarFuncionarias();
   try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch(e){}
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 })();
